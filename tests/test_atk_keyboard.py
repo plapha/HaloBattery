@@ -9,6 +9,7 @@ from providers import atk_keyboard as A
 CAPTURE = bytes.fromhex("04 01 6a 1a 00 00 00 00 3b 00" + " 00" * 54)
 CHARGING_CAPTURE = bytes.fromhex("04 01 7b 1a 00 00 00 00 3c 01" + " 00" * 54)
 UNPLUGGED_CAPTURE = bytes.fromhex("04 01 7c 1a 00 00 00 00 3e 00" + " 00" * 54)
+S99_CABLE_CAPTURE = bytes.fromhex("04 07 00 1a 00 00 00 00 64 02" + " 00" * 54)
 
 
 def entry(**changes):
@@ -66,6 +67,9 @@ class ReplyTests(unittest.TestCase):
 
     def test_real_unplugged_capture(self):
         self.assertEqual(A.battery_reply(UNPLUGGED_CAPTURE, 0x7C01), (62, False))
+
+    def test_real_vgn_s99_cable_capture(self):
+        self.assertEqual(A.battery_reply(S99_CABLE_CAPTURE, 0x0007), (100, True))
 
     def test_zero_and_full_are_valid(self):
         for level in (0, 100):
@@ -288,6 +292,26 @@ class PollTests(unittest.TestCase):
         self.entries = [self.wired(product_string="Rainy 75"), self.wired(usage_page=1, usage=6)]
         self.assertEqual(self.provider.poll(), [])
         self.assertEqual(self.device.opens, [])
+
+    def test_vgn_s99_cable_is_read_under_its_own_name(self):
+        self.entries = [self.wired(product_string="VGN S99", path=b"s99-cable")]
+        self.activity.active.return_value = False
+        self.device.level, self.device.state = 100, 2
+        status, = self.provider.poll()
+        self.assertEqual((status.name, status.level, status.charging, status.online),
+                         ("VGN S99", 100, True, True))
+        self.assertEqual(self.device.opens, [b"s99-cable"])
+
+    def test_vgn_s99_receiver_waits_for_its_own_typing(self):
+        typing = entry(product_string="VGN S99 2.4G Dongle", usage_page=1, usage=6, path=b"s99-typing")
+        self.entries = [entry(product_string="VGN S99 2.4G Dongle", path=b"s99-config"), typing]
+        status, = self.provider.poll()
+        self.assertEqual((status.name, status.level), ("VGN S99", 59))
+        self.activity.configure.assert_called_with([b"s99-typing"])
+        self.assertEqual(self.device.opens, [b"s99-config"])
+        self.activity.active.return_value = False
+        self.later(A.REFRESH)
+        self.assertEqual(self.provider.poll()[0].name, "VGN S99")
 
     def test_missing_hid_library_is_harmless(self):
         with mock.patch.object(A, "hid", None):

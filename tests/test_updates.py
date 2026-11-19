@@ -572,9 +572,10 @@ class AppUpdateTests(unittest.TestCase):
 
 class UpstreamRepositoryTests(unittest.TestCase):
     def test_upstream_is_the_update_source(self):
-        self.assertEqual(updates.REPO, "HeyOkay/HaloBattery")
+        # custom build: updates come from the fork that carries the VGN S99
+        self.assertEqual(updates.REPO, "plapha/HaloBattery")
         for url in (updates.API_URL, updates.TAG_URL, updates.RELEASES_URL):
-            self.assertIn("HeyOkay/HaloBattery", url)
+            self.assertIn("plapha/HaloBattery", url)
             self.assertNotIn("ahmedkhursheed23", url)
 
     def test_an_offer_cached_from_the_fork_is_dropped(self):

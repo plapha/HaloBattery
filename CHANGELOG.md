@@ -6,6 +6,19 @@ and the project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.17.0.1] - 2026-11-19
+
+Custom build of 1.17.0 for plapha.
+
+### Added
+- VGN S99 keyboard battery over its 2.4 GHz receiver (`320F:5088`, "VGN S99 2.4G Dongle")
+  and its USB cable (`320F:5055`, "VGN S99"). It answers the ATK V75X battery request on
+  `FF1C:0092`; read on real hardware: cable 100 % charging, receiver 97 %.
+
+### Changed
+- Updates are checked against plapha/HaloBattery instead of HeyOkay/HaloBattery, so
+  updating never replaces this build with one that lacks the VGN S99.
+
 ## [1.17.0] - 2026-11-12
 
 First combined upstream release after the community fork. Includes six interface

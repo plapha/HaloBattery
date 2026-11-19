@@ -1,4 +1,4 @@
-"""ATK V75X battery over its 2.4 GHz receiver or its USB cable.
+"""ATK V75X (and VGN S99, see MODELS) battery over its 2.4 GHz receiver or its USB cable.
 
 ATK HUB's Evision keyboard driver uses output/input report 04 on FF1C:0092:
 31 payload bytes, a little-endian request id at 0..1, command 1A at 2,
@@ -27,6 +27,13 @@ VID, PID = 0x320F, 0x5088
 USAGE_PAGE, USAGE = 0xFF1C, 0x0092
 PRODUCT = "ATK V75X 2.4G Dongle"
 WIRED_PID, WIRED_PRODUCT = 0x5055, "ATK V75X"
+# Keyboards on the same receiver and cable ids that answer the same request:
+# (receiver product, cable product, name). VGN S99: the cable answered on
+# hardware (100 %, state 2); its receiver is claimed from the same collection.
+MODELS = (
+    (PRODUCT, WIRED_PRODUCT, "ATK V75X"),
+    ("VGN S99 2.4G Dongle", "VGN S99", "VGN S99"),
+)
 REPORT_ID, CMD_BATTERY = 0x04, 0x1A
 TIMEOUT, READ_MS = 1.0, 100
 
@@ -57,6 +64,7 @@ class AtkKeyboardProvider(Provider):
         self._tried = None    # monotonic time of the last request
         self._path = None
         self._paused = None
+        self._name = MODELS[0][2]
 
     def _read(self, path) -> Optional[Tuple[int, bool]]:
         self._sequence = self._sequence % 0xFFFF + 1
@@ -96,15 +104,19 @@ class AtkKeyboardProvider(Provider):
             return [e for e in infos if e.get("product_id") == pid
                     and (e.get("usage_page"), e.get("usage")) == usage
                     and (e.get("product_string") or "").strip().casefold() == product.casefold()]
+        wired = [(d, name) for _, cable, name in MODELS for d in found(WIRED_PID, cable)]
+        dongles = [(d, product, name) for product, _, name in MODELS for d in found(PID, product)]
         # The cable wins when both are connected: it answers while charging.
-        for d in found(WIRED_PID, WIRED_PRODUCT):
-            self._diag.append(f"[ATK V75X] {VID:04x}:{WIRED_PID:04x} USB cable")
+        for d, name in wired:
+            self._name = name
+            self._diag.append(f"[{name}] {VID:04x}:{WIRED_PID:04x} USB cable")
             self.activity.configure([])
             self._switch(d["path"])
             return [self._poll_wired(d["path"])]
-        for d in found(PID, PRODUCT):
-            self._diag.append(f"[ATK V75X] {VID:04x}:{PID:04x} 2.4 GHz")
-            self.activity.configure([e["path"] for e in found(PID, PRODUCT, (1, 6))])
+        for d, product, name in dongles:
+            self._name = name
+            self._diag.append(f"[{name}] {VID:04x}:{PID:04x} 2.4 GHz")
+            self.activity.configure([e["path"] for e in found(PID, product, (1, 6))])
             self._switch(d["path"])
             if not self.activity.start() or not self.activity.active():
                 if self._paused is not True:
@@ -159,14 +171,14 @@ class AtkKeyboardProvider(Provider):
 
     def _status(self):
         level, charging = self._cached
-        return DeviceStatus("atk_keyboard:320f:5088", "ATK V75X", level, charging, True,
+        return DeviceStatus("atk_keyboard:320f:5088", self._name, level, charging, True,
                             self.name, kind="keyboard")
 
     def _idle_status(self, paused=True):
         level = self._cached[0] if self._cached else None
         text = "" if paused else (f"{level}% (last known; no fresh reply)" if level is not None
                                   else "battery not reported yet")
-        return DeviceStatus("atk_keyboard:320f:5088", "ATK V75X", level, False, False,
+        return DeviceStatus("atk_keyboard:320f:5088", self._name, level, False, False,
                             self.name, approx=text, kind="keyboard", polling_paused=paused)
 
     def close(self):
