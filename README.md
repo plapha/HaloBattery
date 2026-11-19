@@ -1,4 +1,4 @@
-> **定制版**：在 [HeyOkay/HaloBattery](https://github.com/HeyOkay/HaloBattery) 1.17.0 的基础上加了 VGN S99 键盘（2.4G 接收器和有线），检查更新只看本仓库。改动见 [CHANGELOG](CHANGELOG.md)。
+> **定制版**：在 [HeyOkay/HaloBattery](https://github.com/HeyOkay/HaloBattery) 1.17.0 的基础上加了 VGN S99 键盘（2.4G 接收器和有线）和 Keychron M3 Mini 鼠标（1K Keychron Link 接收器），检查更新只看本仓库。改动见 [CHANGELOG](CHANGELOG.md)。
 
 <div align="center">
 

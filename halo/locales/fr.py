@@ -78,6 +78,7 @@ MESSAGES = {
     "provider.hyperx_cloud3s": "HyperX Cloud III S Wireless",
     "provider.jbl": "JBL Quantum",
     "provider.keychron": "Keychron",
+    "provider.keychron_link": "Keychron Link (récepteur 1K)",
     "provider.urx": "URX Core75",
     "provider.lamzu": "Souris LAMZU",
     "provider.lamzu_sw": "Lamzu Tachi (8K receiver)",

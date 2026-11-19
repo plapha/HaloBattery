@@ -6,6 +6,17 @@ and the project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.17.0.2] - 2026-11-19
+
+Custom build of 1.17.0 for plapha.
+
+### Added
+- Keychron M3 Mini (and other mice) on the 1K Keychron Link receiver (`3434:D030`).
+  Same exchange as Keychron Launcher: feature report `51 06` on the receiver's `008C:0001`
+  collection, read back 200 ms later; battery in byte 11, charging when byte 12 & 3 is
+  set. Sent at its own 21-byte length, and sent again (up to three times) while the
+  receiver is still busy with another command. Read on real hardware: M3 Mini 99 %.
+
 ## [1.17.0.1] - 2026-11-19
 
 Custom build of 1.17.0 for plapha.

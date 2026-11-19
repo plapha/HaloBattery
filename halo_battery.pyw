@@ -43,7 +43,7 @@ from typing import Callable, Dict, List, Optional, Set
 
 APP_NAME = "HaloBattery"
 APP_TITLE = "Halo Battery"
-VERSION = "1.17.0.1"
+VERSION = "1.17.0.2"
 PRETEND_VERSION = ""             # --pretend-version 1.0.0: test the updater with a built copy
 LEGACY_NAME = "BatteryTray"      # the app's previous name (settings and autostart are migrated)
 
@@ -146,7 +146,7 @@ from providers import (AmInfinityProvider, AstroProvider, AsusProvider,  # noqa:
                        EightBitDoProvider,
                        GWolvesProvider, HyperXAlpha2Provider, HyperXCloud3Provider, HyperXCloud3SProvider,
                        HyperXProvider, JblProvider,
-                       KeychronProvider, LamzuProvider, LofreeProvider, LogitechProvider,
+                       KeychronProvider, KeychronLinkProvider, LamzuProvider, LofreeProvider, LogitechProvider,
                        LogitechCenturionProvider,
                        MchoseProvider, NintendoProvider, NzxtProvider, PlayStationProvider, PulsarProvider,
                        RazerProvider, SteelSeriesEliteProvider, SteelSeriesProvider,
@@ -224,6 +224,7 @@ PROVIDER_LABELS = {
     "jabra": "Jabra headsets (Link 380 / 390 dongle)",
     "jbl": "JBL Quantum",
     "keychron": "Keychron",
+    "keychron_link": "Keychron Link (1K receiver)",
     "lamzu": "LAMZU mice",
     "lamzu_sw": "Lamzu Tachi (8K receiver)",
     "urx": "URX Core75",
@@ -259,7 +260,7 @@ def make_providers(jbl_listen_first: float = 0.0) -> list:
     # jbl_listen_first: only --probe passes it, so its single poll waits for a JBL level
     return [RazerProvider(), AudezeProvider(), WLmouseProvider(), MchoseProvider(),
             HyperXAlpha2Provider(), HyperXCloud3Provider(), HyperXProvider(),
-            KeychronProvider(), PulsarProvider(),
+            KeychronProvider(), KeychronLinkProvider(), PulsarProvider(),
             JblProvider(listen_first=jbl_listen_first), LogitechProvider(), SteelSeriesProvider(), XInputProvider(),
             PlayStationProvider(), EightBitDoProvider(), BarracudaProvider(), BarracudaXProvider(), NintendoProvider(),
             AsusProvider(), GWolvesProvider(), AulaProvider(), LofreeProvider(), AstroProvider(), CorsairProvider(),
